@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="An interactive workbench for isolated American Sign Language recognition and model evaluation.">
+  <title>SignLab ASL | ASL recognition workbench</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-content">
+      <a class="brand" href="#main" aria-label="SignLab ASL home">
+        <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 12V8h4M20 8h4v4M24 20v4h-4M12 24H8v-4M11 18l3-5 4 5 3-4"/><circle cx="11" cy="18" r="1"/><circle cx="21" cy="14" r="1"/></svg>
+        <span>SignLab ASL</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#workbench">Workbench</a>
+        <a href="#evaluation">Evaluation</a>
+      </nav>
+      <span class="connection" id="connection"><span></span>Connecting</span>
+    </div>
+  </header>
+  <main class="shell" id="main">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">American Sign Language <span aria-hidden="true">/</span> Model workbench</p>
+        <h1 id="page-title">Recognize a sign.<br>Inspect the evidence.</h1>
+        <p class="intro-copy">Explore isolated ASL recognition, from the input landmarks to the model’s ranked predictions and measured errors.</p>
+      </div>
+      <dl class="scope">
+        <div><dt>Scope</dt><dd>Selected isolated signs</dd></div>
+        <div><dt>Dataset</dt><dd id="dataset-name">Loading…</dd></div>
+      </dl>
+    </section>
+
+    <section id="workbench" aria-labelledby="workbench-title">
+      <div class="section-heading">
+        <div><p class="eyebrow"><span class="section-index">01</span> Inference</p><h2 id="workbench-title">Recognition workbench</h2></div>
+        <p>Try a recorded example or load a landmark sequence.</p>
+      </div>
+      <div class="workbench-grid">
+        <article class="panel input-panel" aria-labelledby="input-title">
+          <div class="panel-heading">
+            <div><h3 id="input-title">Input clip</h3><p id="sample-detail">Select a clip to get started.</p></div>
+            <span class="chip" id="input-kind">Sample library</span>
+          </div>
+          <div class="preview" id="preview">
+            <div class="preview-grid" aria-hidden="true"></div>
+            <div class="preview-id"><span></span><span id="preview-id">NO CLIP</span></div>
+            <div class="preview-placeholder" id="preview-placeholder">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M12 16v-4h4m12 0h4v4m0 12v4h-4m-12 0h-4v-4M16 25l4-7 4 7 4-6"/><circle cx="16" cy="25" r="1.3"/><circle cx="28" cy="19" r="1.3"/></svg>
+              <p>Landmark or clip preview</p>
+            </div>
+            <canvas id="landmarks" hidden aria-label="Hand landmarks from the selected clip" role="img"></canvas>
+            <video id="clip-video" controls playsinline hidden aria-label="Recorded sign sample"></video>
+            <img id="clip-image" hidden alt="Recorded sign sample">
+          </div>
+          <div class="timeline" id="timeline" hidden>
+            <button type="button" id="play" class="button button-small" aria-label="Play landmarks">Play</button>
+            <label class="sr-only" for="frame-slider">Landmark frame</label>
+            <input id="frame-slider" type="range" min="1" max="1" value="1">
+            <output id="frame-number" for="frame-slider">1 / 1</output>
+            <button type="button" id="save-frames" class="button button-small">Save JSON</button>
+          </div>
+          <div class="input-controls">
+            <div class="sample-control">
+              <label for="sample-select">Recorded sample</label>
+              <select id="sample-select" disabled><option>Loading sample library…</option></select>
+            </div>
+            <button type="button" class="button button-primary" id="analyze" disabled>Analyze clip <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="upload">
+            <label class="button button-small upload-label" for="landmark-file">Load landmark JSON</label>
+            <input type="file" id="landmark-file" accept=".json,application/json" class="sr-only" aria-describedby="upload-note">
+            <small id="upload-note">Expected format: <code>{"frames": [[[x, y, z], …], …]}</code></small>
+          </div>
+          <p class="status" id="input-status" role="status"></p>
+        </article>
+
+        <article class="panel result-panel" aria-labelledby="result-title">
+          <div class="panel-heading">
+            <div><h3 id="result-title">Model output</h3><p>Top scores for the selected clip</p></div>
+            <span class="chip" id="result-state">Awaiting input</span>
+          </div>
+          <div class="decision" id="decision" aria-live="polite">
+            <p class="eyebrow" id="decision-kicker">Prediction</p>
+            <p class="decision-label" id="prediction">—</p>
+            <p id="prediction-detail">Analyze a clip to see the model’s decision.</p>
+          </div>
+          <div class="scores-heading"><h4>Ranked signs</h4><span>Model score</span></div>
+          <ul id="scores" class="scores"><li class="empty">Scores will appear here.</li></ul>
+          <div id="prediction-meta" class="prediction-meta" hidden></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="evaluation" aria-labelledby="evaluation-title">
+      <div class="section-heading">
+        <div><p class="eyebrow"><span class="section-index">02</span> Evaluation</p><h2 id="evaluation-title">How the model performs</h2></div>
+        <p>Check how the model was tested and which signs it confuses.</p>
+      </div>
+      <p class="status" id="report-status" role="status">Loading the evaluation report…</p>
+      <div id="report" hidden>
+        <dl id="metrics" class="metrics"></dl>
+        <div class="evaluation-grid">
+          <article class="panel" aria-labelledby="comparison-title">
+            <div class="panel-heading"><div><h3 id="comparison-title">Model comparison</h3><p>Macro F1 weights each sign class equally.</p></div></div>
+            <div class="table-wrap" id="comparison" tabindex="0" aria-label="Model comparison results"></div>
+          </article>
+          <article class="panel" aria-labelledby="confusion-title">
+            <div class="panel-heading"><div><h3 id="confusion-title">Confusion matrix</h3><p>Rows are reference signs. Columns are predicted signs. Color is scaled within each row.</p></div></div>
+            <div class="table-wrap" id="confusion" tabindex="0" aria-label="Confusion matrix"></div>
+          </article>
+        </div>
+        <aside class="report-notes" id="report-notes" hidden aria-label="Evaluation notes"></aside>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="shell"><strong>SignLab ASL</strong><span>Isolated ASL recognition and evaluation</span></div></footer>
+</body>
+</html>
