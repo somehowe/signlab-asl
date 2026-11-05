@@ -4,3 +4,4 @@ __pycache__/
 .epee-cache/
 data/*.npz
 artifacts/*.npz
+data-work/
