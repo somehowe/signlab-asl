@@ -8,7 +8,7 @@ ranked predictions, and see exactly where the model gets confused.
 baseline, measured on **74 clips from two signers held out of training and
 validation**.
 
-[Watch the short walkthrough](docs/media/walkthrough.mp4) ·
+[Watch the short walkthrough](https://youtu.be/xr_eqwYHSHg) ·
 [See the benchmark](#benchmark) ·
 [Run locally](#run-locally)
 
